@@ -3,19 +3,12 @@ import { AccountsService } from './accounts.service';
 import { AccountsController } from './accounts.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Account } from './entities/account.entity';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from 'src/roles/roles.guard';
+import { LoggerModule } from 'src/logger/logger.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Account])],
+  imports: [TypeOrmModule.forFeature([Account]), LoggerModule],
   controllers: [AccountsController],
-  providers: [
-    AccountsService,
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
-  ],
+  providers: [AccountsService],
   exports: [AccountsService],
 })
 export class AccountsModule {}

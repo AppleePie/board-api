@@ -9,27 +9,28 @@ import {
   Put,
   HttpStatus,
   Req,
-  UseGuards,
   ForbiddenException,
   BadRequestException,
+  Inject,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { Role } from '../roles/role.enum';
-import { Roles as WithRole } from '../roles/roles.decorator';
+import { Role } from '../auth/roles/role.enum';
 import { AccountsService } from './accounts.service';
 import { RegisterAccountDto } from './dto/register-account.dto';
 import { GetAccountDto } from './dto/get-account.dto';
-import { JwtAuthGuard } from '../auth/jwt.auth';
 import { LoginAccountDto } from './dto/login-account.dto';
 import { AuthService } from '../auth/auth.service';
-import { User } from '../auth/types';
-
-type Request = { user: User };
+import { Request } from '../auth/types';
+import { LoggerService } from '../logger/logger.service';
+import { Auth } from '../auth/auth.decorator';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Controller('accounts')
 export class AccountsController {
   public constructor(
     private readonly accountsService: AccountsService,
     private readonly authService: AuthService,
+    @Inject(LoggerService.diKey) private readonly logger: LoggerService,
   ) {}
 
   @Get(':id')
@@ -40,25 +41,44 @@ export class AccountsController {
 
   @Post('registration')
   public async registerAccount(@Body() registerAccountDto: RegisterAccountDto) {
-    const isCreated = await this.accountsService.create(registerAccountDto);
+    const createdAccountId = await this.accountsService.create(
+      registerAccountDto,
+    );
 
-    if (!isCreated) throw new BadRequestException('Account exist');
+    if (!createdAccountId) {
+      throw new BadRequestException('Account exist');
+    }
+
+    this.logger.info(`Created account with id = ${createdAccountId}`);
   }
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   public async login(@Body() loginAccountDto: LoginAccountDto) {
-    return this.authService.login(loginAccountDto);
+    const payload = await this.authService.login(loginAccountDto);
+
+    if (!payload) {
+      throw new UnauthorizedException();
+    }
+
+    this.logger.info(`Successful login in ${loginAccountDto.login}`);
+
+    return payload;
   }
 
   @Put(':id/role')
-  @UseGuards(JwtAuthGuard)
-  @WithRole(Role.Administrator)
-  public async updateRole(@Param('id') id: string, @Body() role: Role) {
-    await this.accountsService.updateRole(id, role);
+  @Auth(Role.Administrator)
+  public async updateRole(
+    @Param('id') id: string,
+    @Body() { role }: UpdateRoleDto,
+  ) {
+    const updatedId = await this.accountsService.updateRole(id, role);
+
+    this.logger.info(`Updated role of account with id = ${updatedId}`);
   }
 
   @Put('update')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   public async updateLoginAndPassword(
     @Req() { user }: Request,
     @Body() loginAccountDto: LoginAccountDto,
@@ -70,12 +90,18 @@ export class AccountsController {
       throw new ForbiddenException();
     }
 
-    await this.accountsService.updateLoginAndPassword(loginAccountDto);
+    const updatedId = await this.accountsService.updateLoginAndPassword(
+      loginAccountDto,
+    );
+
+    this.logger.info(
+      `Updated login and password of account with id = ${updatedId}`,
+    );
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @WithRole(Role.Administrator)
+  @Auth(Role.Administrator)
   public async deleteAccount(@Param('id') id: string) {
     await this.accountsService.remove(id);
   }

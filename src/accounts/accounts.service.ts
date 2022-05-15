@@ -6,7 +6,7 @@ import { Account } from './entities/account.entity';
 import { Repository } from 'typeorm';
 import { LoginAccountDto } from './dto/login-account.dto';
 import * as bcrypt from 'bcrypt';
-import { Role } from '../roles/role.enum';
+import { Role } from '../auth/roles/role.enum';
 
 @Injectable()
 export class AccountsService {
@@ -15,19 +15,25 @@ export class AccountsService {
     private readonly accountRepository: Repository<Account>,
   ) {}
 
-  public async create({ login, name, password }: RegisterAccountDto) {
-    if ((await this.findOneByLogin(login)) != null) return false;
+  public async create({
+    login,
+    name,
+    password,
+  }: RegisterAccountDto): Promise<string> {
+    if ((await this.findOneByLogin(login)) != null) return null;
 
     const hashed = await this.getHash(password);
 
-    await this.accountRepository.insert({
+    const result = await this.accountRepository.insert({
       login,
       name,
       role: Role.User,
       password: hashed,
     });
 
-    return true;
+    const [created] = result.identifiers;
+
+    return created.id;
   }
 
   public findAll() {
@@ -42,24 +48,30 @@ export class AccountsService {
     return this.accountRepository.findOne({ where: { login } });
   }
 
-  public update(uuid: string, updateAccountDto: UpdateAccountDto) {
-    return this.accountRepository.update(uuid, updateAccountDto);
+  public async update(
+    uuid: string,
+    updateAccountDto: UpdateAccountDto,
+  ): Promise<string> {
+    await this.accountRepository.update(uuid, updateAccountDto);
+    return uuid;
   }
 
-  public updateRole(uuid: string, role: Role) {
-    return this.accountRepository.update(uuid, { role });
+  public async updateRole(uuid: string, role: Role) {
+    console.log(uuid, role);
+
+    await this.accountRepository.update(uuid, { role });
+
+    return uuid;
   }
 
   public async updateLoginAndPassword({ login, password }: LoginAccountDto) {
     const account = await this.findOneByLogin(login);
 
-    if (!account) return false;
+    if (!account) return null;
 
     const hashed = await this.getHash(password);
 
-    await this.update(account.id, { login, password: hashed });
-
-    return true;
+    return this.update(account.id, { login, password: hashed });
   }
 
   public remove(uuid: string) {

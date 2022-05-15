@@ -1,4 +1,4 @@
-import { Role } from 'src/roles/role.enum';
+import { Role } from 'src/auth/roles/role.enum';
 
 export type JwtPayload = {
   sub: Role; // role
@@ -9,3 +9,5 @@ export type User = {
   role: Role;
   login: string;
 };
+
+export type Request = { user: User };
