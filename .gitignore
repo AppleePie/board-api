@@ -2,6 +2,7 @@
 /dist
 /node_modules
 board-database
+.env
 
 # Logs
 logs

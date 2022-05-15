@@ -24,6 +24,7 @@ import { Request } from '../auth/types';
 import { LoggerService } from '../logger/logger.service';
 import { Auth } from '../auth/auth.decorator';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { Account } from './entities/account.entity';
 
 @Controller('accounts')
 export class AccountsController {
@@ -35,7 +36,7 @@ export class AccountsController {
 
   @Get(':id')
   public async getPublicUserData(@Param('id') id: string) {
-    const account = await this.accountsService.findOne(id);
+    const account = (await this.accountsService.findOne(id)) ?? new Account();
     return GetAccountDto.from(account);
   }
 

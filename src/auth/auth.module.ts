@@ -3,7 +3,6 @@ import { AuthService } from './auth.service';
 import { AccountsModule } from '../accounts/accounts.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
 import { LoggerModule } from 'src/logger/logger.module';
 
@@ -14,8 +13,8 @@ import { LoggerModule } from 'src/logger/logger.module';
     PassportModule,
     LoggerModule,
     JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: jwtConstants.lifeTime },
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_LIFE_TIME },
     }),
   ],
   providers: [AuthService, JwtStrategy],

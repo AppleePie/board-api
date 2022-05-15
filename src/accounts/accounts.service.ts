@@ -5,8 +5,8 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { Account } from './entities/account.entity';
 import { Repository } from 'typeorm';
 import { LoginAccountDto } from './dto/login-account.dto';
-import * as bcrypt from 'bcrypt';
 import { Role } from '../auth/roles/role.enum';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AccountsService {
@@ -19,7 +19,7 @@ export class AccountsService {
     login,
     name,
     password,
-  }: RegisterAccountDto): Promise<string> {
+  }: RegisterAccountDto): Promise<string | null> {
     if ((await this.findOneByLogin(login)) != null) return null;
 
     const hashed = await this.getHash(password);

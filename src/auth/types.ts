@@ -2,12 +2,14 @@ import { Role } from 'src/auth/roles/role.enum';
 
 export type JwtPayload = {
   sub: Role; // role
-  username: string; // login
+  login: string; // login
+  username: string;
 };
 
 export type User = {
   role: Role;
   login: string;
+  name: string;
 };
 
 export type Request = { user: User };
