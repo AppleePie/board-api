@@ -1,7 +1,7 @@
 import { Role } from 'src/auth/roles/role.enum';
 
 export type JwtPayload = {
-  sub: Role; // role
+  role: Role; // role
   login: string; // login
   username: string;
 };

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MemoryStoredFile } from 'nestjs-form-data';
 import { Repository, Like } from 'typeorm';
-import { UpdateAdvertisementDto } from './dto/update-advertisement.dto';
 import { Advertisement } from './entities/advertisement.entity';
 import { ImageService } from './image.service';
 
@@ -25,13 +25,13 @@ export class AdvertisementsService {
     return this.advertisementRepository.find({ where: { ownerName } });
   }
 
-  public findRecommended(skip: number, take: number) {
+  public findRecommended(skip = 0, take = 21) {
     return this.advertisementRepository.find({ skip, take });
   }
 
   public async insertAdvertisement(
     advertisement: Advertisement,
-    imageFiles: Express.Multer.File[],
+    imageFiles: MemoryStoredFile[],
   ): Promise<string> {
     const images = (await this.imageService.uploadAll(imageFiles)).filter(
       (image) => image != null,
@@ -48,8 +48,8 @@ export class AdvertisementsService {
   }
 
   public async updateAdvertisement(
-    updateAdvertisementDto: UpdateAdvertisementDto,
-    imageFiles: Express.Multer.File[],
+    updateAdvertisementDto: Advertisement,
+    imageFiles: MemoryStoredFile[],
   ): Promise<string | null> {
     const current = await this.findOne(updateAdvertisementDto.id);
 

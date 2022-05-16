@@ -4,6 +4,7 @@ import { Repository, In } from 'typeorm';
 import { Image } from './entities/image.entity';
 import * as fs from 'fs';
 import path from 'path';
+import { MemoryStoredFile } from 'nestjs-form-data';
 
 @Injectable()
 export class ImageService {
@@ -23,7 +24,7 @@ export class ImageService {
     return fs.promises.readFile(path.join(this.imageDirectory, image.path));
   }
 
-  public async upload(imageFile: Express.Multer.File): Promise<Image | null> {
+  public async upload(imageFile: MemoryStoredFile): Promise<Image | null> {
     const image = Image.create();
 
     const result = await this.imageRepository.insert(image);
@@ -44,7 +45,7 @@ export class ImageService {
     }
   }
 
-  public uploadAll(imageFiles: Express.Multer.File[]) {
+  public uploadAll(imageFiles: MemoryStoredFile[]) {
     return Promise.all(imageFiles.map((image) => this.upload(image)));
   }
 

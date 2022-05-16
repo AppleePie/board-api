@@ -22,11 +22,13 @@ export class AuthService {
     const payload = {
       login: account.login,
       username: account.name,
-      sub: account.role,
+      role: account.role,
     };
 
     return {
-      access_token: this.jwtService.sign(payload),
+      ...payload,
+      expiredAt: new Date(new Date().getTime() + 15 * 60000),
+      accessToken: this.jwtService.sign(payload),
     };
   }
 }

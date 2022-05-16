@@ -7,9 +7,14 @@ import { Advertisement } from './entities/advertisement.entity';
 import { ImageService } from './image.service';
 import { Image } from './entities/image.entity';
 import { RatingCalculatorService } from './rating-calculator.service';
+import { NestjsFormDataModule } from 'nestjs-form-data';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Advertisement, Image]), LoggerModule],
+  imports: [
+    TypeOrmModule.forFeature([Advertisement, Image]),
+    LoggerModule,
+    NestjsFormDataModule,
+  ],
   controllers: [AdvertisementsController],
   providers: [AdvertisementsService, ImageService, RatingCalculatorService],
 })

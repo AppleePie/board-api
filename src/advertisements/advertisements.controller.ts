@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Delete,
   ForbiddenException,
@@ -12,12 +11,12 @@ import {
   Query,
   Req,
   Res,
-  UploadedFiles,
 } from '@nestjs/common';
 import { createReadStream } from 'fs';
+import { FormDataRequest } from 'nestjs-form-data';
 import { Role } from 'src/auth/roles/role.enum';
 import { Auth } from '../auth/auth.decorator';
-import { Request } from '../auth/types';
+import { Request, FormData } from './types';
 import { LoggerService } from '../logger/logger.service';
 import { AdvertisementsService } from './advertisements.service';
 import { Advertisement } from './entities/advertisement.entity';
@@ -73,13 +72,13 @@ export class AdvertisementsController {
 
   @Auth()
   @Post('add')
-  public async addAdvertisement(
-    @Req() { user }: Request,
-    @Body() advertisement: Advertisement,
-    @UploadedFiles() files: Express.Multer.File[],
-  ) {
+  @FormDataRequest()
+  public async addAdvertisement(@Req() req: any) {
+    const { user, body } = req;
+    const { advertisement, images } = this.parseFormBody(body);
+
     if (
-      user.login !== advertisement.ownerName &&
+      user.name !== advertisement.ownerName &&
       user.role !== Role.Administrator
     ) {
       throw new ForbiddenException();
@@ -87,7 +86,7 @@ export class AdvertisementsController {
 
     const createdId = await this.advertisementsService.insertAdvertisement(
       advertisement,
-      files,
+      images,
     );
 
     this.logger.info(`Created advertisement with id = ${createdId}`);
@@ -95,13 +94,12 @@ export class AdvertisementsController {
 
   @Auth()
   @Patch('update')
-  public async updateAdvertisement(
-    @Req() { user }: Request,
-    @Body() advertisement: Advertisement,
-    @UploadedFiles() files: Express.Multer.File[],
-  ) {
+  @FormDataRequest()
+  public async updateAdvertisement(@Req() req: Request) {
+    const { user, body } = req;
+    const { advertisement, images } = this.parseFormBody(body);
     if (
-      user.login !== advertisement.ownerName &&
+      user.name !== advertisement.ownerName &&
       user.role !== Role.Administrator
     ) {
       throw new ForbiddenException();
@@ -109,7 +107,7 @@ export class AdvertisementsController {
 
     const updatedId = await this.advertisementsService.updateAdvertisement(
       advertisement,
-      files,
+      images,
     );
 
     this.logger.info(`Updated advertisement with id = ${updatedId}`);
@@ -147,5 +145,22 @@ export class AdvertisementsController {
     const take = !isNaN(+offset) ? Number(count) : undefined;
 
     return { skip, take };
+  }
+
+  // TODO: убрать ручной парсинг форм-даты
+  private parseFormBody(body: FormData) {
+    const { Ad, ...imagesFiles } = body;
+    const source = JSON.parse(Ad);
+
+    const advertisement = new Advertisement();
+    Object.keys(source).forEach((key) => {
+      const field = key[0].toLowerCase() + key.substring(1);
+      const value = source[key];
+
+      if (value) advertisement[field] = value;
+    });
+    const images = Object.keys(imagesFiles).map((key) => imagesFiles[key]);
+
+    return { advertisement, images };
   }
 }
