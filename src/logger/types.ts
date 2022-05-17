@@ -1,9 +1,9 @@
 export type RequestErrorType = {
   message: string;
-  userId?: number; // id пользователя
-  exception?: string; // ошибка (если есть с трейсом)
-  httpRequestBody?: Record<string, unknown>; // тело запроса, нужно чуствительные данные вырезать https://wiki.tcsbank.ru/pages/viewpage.action?pageId=517257323
-  httpResponseBody?: Record<string, unknown>; // тело ответа, требования аналогичны httpRequestBody
+  userId?: number;
+  exception?: string;
+  httpRequestBody?: Record<string, unknown>;
+  httpResponseBody?: Record<string, unknown>;
 };
 
 export enum LevelEnum {
