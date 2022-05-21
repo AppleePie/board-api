@@ -17,13 +17,11 @@ import { Request, FormData } from '../types';
 import { LoggerService } from '../../logger/logger.service';
 import { AdvertisementsService } from '../services/advertisements.service';
 import { Advertisement } from '../entities/advertisement.entity';
-import { RatingCalculatorService } from '../services/rating-calculator.service';
 
 @Controller('ads')
 export class AdvertisementsController {
   constructor(
     private readonly advertisementsService: AdvertisementsService,
-    private readonly ratingCalculator: RatingCalculatorService,
     @Inject(LoggerService.diKey) private readonly logger: LoggerService,
   ) {}
 
@@ -57,6 +55,13 @@ export class AdvertisementsController {
     const { skip, take } = this.getSkipAndTake(offset, count);
 
     return this.advertisementsService.getWithCategory(category, skip, take);
+  }
+
+  @Get('getById/:id')
+  public getById(@Param('id') id: string) {
+    this.logger.info(`Get by id = ${id}`);
+
+    return this.advertisementsService.findById(id);
   }
 
   @Auth()
@@ -137,8 +142,9 @@ export class AdvertisementsController {
 
   // TODO: убрать ручной парсинг форм-даты
   private parseFormBody(body: FormData) {
-    const { Ad, ...imagesFiles } = body;
-    const source = JSON.parse(Ad);
+    console.log(body);
+    const { ad, ...imagesFiles } = body;
+    const source = JSON.parse(ad);
 
     const advertisement = new Advertisement();
     Object.keys(source).forEach((key) => {

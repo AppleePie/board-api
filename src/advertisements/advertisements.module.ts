@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Advertisement } from './entities/advertisement.entity';
 import { ImageService } from './services/image.service';
 import { Image } from './entities/image.entity';
-import { RatingCalculatorService } from './services/rating-calculator.service';
 import { NestjsFormDataModule } from 'nestjs-form-data';
 import { ImgController } from './controllers/img.controller';
 
@@ -17,6 +16,6 @@ import { ImgController } from './controllers/img.controller';
     NestjsFormDataModule,
   ],
   controllers: [AdvertisementsController, ImgController],
-  providers: [AdvertisementsService, ImageService, RatingCalculatorService],
+  providers: [AdvertisementsService, ImageService],
 })
 export class AdvertisementsModule {}

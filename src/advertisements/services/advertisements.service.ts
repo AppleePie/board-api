@@ -4,6 +4,7 @@ import { MemoryStoredFile } from 'nestjs-form-data';
 import { Repository, Like } from 'typeorm';
 import { Advertisement } from '../entities/advertisement.entity';
 import { ImageService } from './image.service';
+import { RatingCalculatorService } from './rating-calculator.service';
 
 @Injectable()
 export class AdvertisementsService {
@@ -13,12 +14,12 @@ export class AdvertisementsService {
     private readonly imageService: ImageService,
   ) {}
 
-  public findAll() {
-    return `This action returns all advertisements`;
-  }
-
   public findOne(id: string) {
     return this.advertisementRepository.findOne(id);
+  }
+
+  public findById(uuid: string) {
+    return this.advertisementRepository.findOne(uuid);
   }
 
   public findByName(ownerName: string) {
@@ -39,6 +40,8 @@ export class AdvertisementsService {
 
     advertisement.imagesLinks = images.map(({ path }) => 'img/get/' + path);
     advertisement.imageIds = images.map(({ id }) => id);
+    advertisement.rating =
+      RatingCalculatorService.calculateRating(advertisement);
 
     const result = await this.advertisementRepository.insert(advertisement);
 
@@ -65,6 +68,9 @@ export class AdvertisementsService {
       ({ path }) => 'img/get/' + path,
     );
     updateAdvertisementDto.imageIds = images.map(({ id }) => id);
+    updateAdvertisementDto.rating = RatingCalculatorService.calculateRating(
+      updateAdvertisementDto,
+    );
 
     await this.advertisementRepository.update(
       current.sid,

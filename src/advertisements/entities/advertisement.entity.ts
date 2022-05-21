@@ -5,9 +5,6 @@ export class Advertisement {
   @PrimaryGeneratedColumn('uuid')
   public sid: string;
 
-  @Column('int')
-  public price: number;
-
   @Column()
   public ownerName: string;
 
@@ -20,12 +17,12 @@ export class Advertisement {
   @Column()
   public category: string;
 
-  @Column('int', { default: null })
-  public rating: number | null;
+  @Column('int', { default: 0 })
+  public rating: number;
 
-  @Column('simple-array', { default: null })
+  @Column('simple-array', { nullable: true, default: null })
   public imagesLinks: string[] | null;
 
-  @Column('simple-array', { default: null })
+  @Column('simple-array', { nullable: true, default: null })
   public imageIds: string[] | null;
 }
