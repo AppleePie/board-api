@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemoryStoredFile } from 'nestjs-form-data';
 import { Repository, Like } from 'typeorm';
-import { Advertisement } from './entities/advertisement.entity';
+import { Advertisement } from '../entities/advertisement.entity';
 import { ImageService } from './image.service';
 
 @Injectable()

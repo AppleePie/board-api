@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Advertisement } from './entities/advertisement.entity';
+import { Advertisement } from '../entities/advertisement.entity';
 
 @Injectable()
 export class RatingCalculatorService {

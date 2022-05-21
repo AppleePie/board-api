@@ -12,12 +12,12 @@ import {
 } from '@nestjs/common';
 import { FormDataRequest } from 'nestjs-form-data';
 import { Role } from 'src/auth/roles/role.enum';
-import { Auth } from '../auth/auth.decorator';
-import { Request, FormData } from './types';
-import { LoggerService } from '../logger/logger.service';
-import { AdvertisementsService } from './advertisements.service';
-import { Advertisement } from './entities/advertisement.entity';
-import { RatingCalculatorService } from './rating-calculator.service';
+import { Auth } from '../../auth/auth.decorator';
+import { Request, FormData } from '../types';
+import { LoggerService } from '../../logger/logger.service';
+import { AdvertisementsService } from '../services/advertisements.service';
+import { Advertisement } from '../entities/advertisement.entity';
+import { RatingCalculatorService } from '../services/rating-calculator.service';
 
 @Controller('ads')
 export class AdvertisementsController {

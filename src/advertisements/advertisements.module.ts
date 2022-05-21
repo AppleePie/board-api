@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
-import { AdvertisementsService } from './advertisements.service';
-import { AdvertisementsController } from './advertisements.controller';
+import { AdvertisementsService } from './services/advertisements.service';
+import { AdvertisementsController } from './controllers/advertisements.controller';
 import { LoggerModule } from 'src/logger/logger.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Advertisement } from './entities/advertisement.entity';
-import { ImageService } from './image.service';
+import { ImageService } from './services/image.service';
 import { Image } from './entities/image.entity';
-import { RatingCalculatorService } from './rating-calculator.service';
+import { RatingCalculatorService } from './services/rating-calculator.service';
 import { NestjsFormDataModule } from 'nestjs-form-data';
-import { ImgController } from './img.controller';
+import { ImgController } from './controllers/img.controller';
 
 @Module({
   imports: [

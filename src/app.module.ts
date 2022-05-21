@@ -5,6 +5,9 @@ import { AccountsModule } from './accounts/accounts.module';
 import { AuthModule } from './auth/auth.module';
 import { LoggerModule } from './logger/logger.module';
 import { AdvertisementsModule } from './advertisements/advertisements.module';
+import { Account } from './accounts/entities/account.entity';
+import { Advertisement } from './advertisements/entities/advertisement.entity';
+import { Image } from './advertisements/entities/image.entity';
 
 @Module({
   imports: [
@@ -16,7 +19,7 @@ import { AdvertisementsModule } from './advertisements/advertisements.module';
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'board-database',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [Account, Advertisement, Image],
       synchronize: true,
     }),
   ],
