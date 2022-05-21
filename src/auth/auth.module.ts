@@ -12,9 +12,12 @@ import { LoggerModule } from 'src/logger/logger.module';
     AccountsModule,
     PassportModule,
     LoggerModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_LIFE_TIME },
+    JwtModule.registerAsync({
+      // wait reading config
+      useFactory: () => ({
+        secret: process.env.JWT_SECRET,
+        signOptions: { expiresIn: process.env.JWT_LIFE_TIME ?? '15m' },
+      }),
     }),
   ],
   providers: [AuthService, JwtStrategy],
