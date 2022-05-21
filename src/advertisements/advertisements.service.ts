@@ -37,7 +37,7 @@ export class AdvertisementsService {
       (image) => image != null,
     );
 
-    advertisement.imageLinks = images.map(({ path }) => 'img/get/' + path);
+    advertisement.imagesLinks = images.map(({ path }) => 'img/get/' + path);
     advertisement.imageIds = images.map(({ id }) => id);
 
     const result = await this.advertisementRepository.insert(advertisement);
@@ -51,7 +51,7 @@ export class AdvertisementsService {
     updateAdvertisementDto: Advertisement,
     imageFiles: MemoryStoredFile[],
   ): Promise<string | null> {
-    const current = await this.findOne(updateAdvertisementDto.id);
+    const current = await this.findOne(updateAdvertisementDto.sid);
 
     if (!current) return null;
 
@@ -61,17 +61,17 @@ export class AdvertisementsService {
       (image) => image != null,
     );
 
-    updateAdvertisementDto.imageLinks = images.map(
+    updateAdvertisementDto.imagesLinks = images.map(
       ({ path }) => 'img/get/' + path,
     );
     updateAdvertisementDto.imageIds = images.map(({ id }) => id);
 
     await this.advertisementRepository.update(
-      current.id,
+      current.sid,
       updateAdvertisementDto,
     );
 
-    return current.id;
+    return current.sid;
   }
 
   public async delete(id: string) {

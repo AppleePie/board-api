@@ -6,7 +6,7 @@ export class RatingCalculatorService {
   public getRating(advertisement: Advertisement) {
     return (
       advertisement.description.length / 10 +
-      (advertisement.imageLinks?.length ?? 0)
+      (advertisement.imagesLinks?.length ?? 0)
     );
   }
 }

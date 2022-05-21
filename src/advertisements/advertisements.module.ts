@@ -8,6 +8,7 @@ import { ImageService } from './image.service';
 import { Image } from './entities/image.entity';
 import { RatingCalculatorService } from './rating-calculator.service';
 import { NestjsFormDataModule } from 'nestjs-form-data';
+import { ImgController } from './img.controller';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { NestjsFormDataModule } from 'nestjs-form-data';
     LoggerModule,
     NestjsFormDataModule,
   ],
-  controllers: [AdvertisementsController],
+  controllers: [AdvertisementsController, ImgController],
   providers: [AdvertisementsService, ImageService, RatingCalculatorService],
 })
 export class AdvertisementsModule {}

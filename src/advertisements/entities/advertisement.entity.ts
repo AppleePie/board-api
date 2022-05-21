@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 @Entity()
 export class Advertisement {
   @PrimaryGeneratedColumn('uuid')
-  public id: string;
+  public sid: string;
 
   @Column('int')
   public price: number;
@@ -24,7 +24,7 @@ export class Advertisement {
   public rating: number | null;
 
   @Column('simple-array', { default: null })
-  public imageLinks: string[] | null;
+  public imagesLinks: string[] | null;
 
   @Column('simple-array', { default: null })
   public imageIds: string[] | null;

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Image } from './entities/image.entity';
 import * as fs from 'fs';
-import path from 'path';
 import { MemoryStoredFile } from 'nestjs-form-data';
 
 @Injectable()
@@ -19,30 +18,23 @@ export class ImageService {
   }
 
   public async getImageById(id: string) {
-    const image = await this.imageRepository.findOne(id);
+    const image = await this.imageRepository.findOne({ path: id });
 
-    return fs.promises.readFile(path.join(this.imageDirectory, image.path));
+    console.log(image);
+    return fs.createReadStream(this.imageDirectory + '/' + image.path);
   }
 
   public async upload(imageFile: MemoryStoredFile): Promise<Image | null> {
     const image = Image.create();
 
-    const result = await this.imageRepository.insert(image);
+    await this.imageRepository.insert(image);
 
-    const [{ id }] = result.identifiers;
+    await fs.promises.writeFile(
+      this.imageDirectory + '/' + image.path,
+      imageFile.buffer,
+    );
 
-    try {
-      await fs.promises.writeFile(
-        path.join(this.imageDirectory, image.path),
-        imageFile.buffer,
-      );
-
-      return image;
-    } catch {
-      await this.imageRepository.delete(id);
-
-      return null;
-    }
+    return image;
   }
 
   public uploadAll(imageFiles: MemoryStoredFile[]) {

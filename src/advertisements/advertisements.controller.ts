@@ -3,16 +3,13 @@ import {
   Delete,
   ForbiddenException,
   Get,
-  Header,
   Inject,
   Param,
   Patch,
   Post,
   Query,
   Req,
-  Res,
 } from '@nestjs/common';
-import { createReadStream } from 'fs';
 import { FormDataRequest } from 'nestjs-form-data';
 import { Role } from 'src/auth/roles/role.enum';
 import { Auth } from '../auth/auth.decorator';
@@ -20,14 +17,12 @@ import { Request, FormData } from './types';
 import { LoggerService } from '../logger/logger.service';
 import { AdvertisementsService } from './advertisements.service';
 import { Advertisement } from './entities/advertisement.entity';
-import { ImageService } from './image.service';
 import { RatingCalculatorService } from './rating-calculator.service';
 
 @Controller('ads')
 export class AdvertisementsController {
   constructor(
     private readonly advertisementsService: AdvertisementsService,
-    private readonly imageRepository: ImageService,
     private readonly ratingCalculator: RatingCalculatorService,
     @Inject(LoggerService.diKey) private readonly logger: LoggerService,
   ) {}
@@ -131,13 +126,6 @@ export class AdvertisementsController {
     await this.advertisementsService.delete(id);
 
     this.logger.info(`Delete advertisement with id = ${id}`);
-  }
-
-  @Get('/img/get/{imageId}')
-  @Header('Content-Type', 'image/jpeg')
-  public async getImages(imageId: string, @Res() response: any) {
-    const image = await this.imageRepository.getImageById(imageId);
-    return createReadStream(image).pipe(response);
   }
 
   private getSkipAndTake(offset: string, count: string) {
