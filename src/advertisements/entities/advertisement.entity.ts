@@ -17,7 +17,7 @@ export class Advertisement {
   @Column()
   public category: string;
 
-  @Column('int', { default: 0 })
+  @Column('int', { nullable: true, default: null })
   public rating: number;
 
   @Column('simple-array', { nullable: true, default: null })

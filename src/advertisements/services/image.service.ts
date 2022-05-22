@@ -22,8 +22,6 @@ export class ImageService {
   public async getImageById(id: string) {
     const image = await this.imageRepository.findOne({ path: id });
 
-    console.log(image);
-
     return fs.createReadStream(path.join(this.imageDirectory, image.path));
   }
 

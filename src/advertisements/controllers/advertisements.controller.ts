@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  Body,
   Controller,
   Delete,
   ForbiddenException,
@@ -9,14 +11,16 @@ import {
   Post,
   Query,
   Req,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
-import { FormDataRequest } from 'nestjs-form-data';
 import { Role } from 'src/auth/roles/role.enum';
 import { Auth } from '../../auth/auth.decorator';
 import { Request, FormData } from '../types';
 import { LoggerService } from '../../logger/logger.service';
 import { AdvertisementsService } from '../services/advertisements.service';
 import { Advertisement } from '../entities/advertisement.entity';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('ads')
 export class AdvertisementsController {
@@ -30,7 +34,10 @@ export class AdvertisementsController {
     @Query('offset') offset: string,
     @Query('count') count: string,
   ) {
-    const { skip, take } = this.getSkipAndTake(offset, count);
+    const { skip, take } = AdvertisementsController.getSkipAndTake(
+      offset,
+      count,
+    );
 
     return this.advertisementsService.findRecommended(skip, take);
   }
@@ -41,7 +48,10 @@ export class AdvertisementsController {
     @Query('offset') offset: string,
     @Query('count') count: string,
   ) {
-    const { skip, take } = this.getSkipAndTake(offset, count);
+    const { skip, take } = AdvertisementsController.getSkipAndTake(
+      offset,
+      count,
+    );
 
     return this.advertisementsService.getSimilar(query, skip, take);
   }
@@ -52,7 +62,10 @@ export class AdvertisementsController {
     @Query('offset') offset: string,
     @Query('count') count: string,
   ) {
-    const { skip, take } = this.getSkipAndTake(offset, count);
+    const { skip, take } = AdvertisementsController.getSkipAndTake(
+      offset,
+      count,
+    );
 
     return this.advertisementsService.getWithCategory(category, skip, take);
   }
@@ -72,10 +85,17 @@ export class AdvertisementsController {
 
   @Auth()
   @Post('add')
-  @FormDataRequest()
-  public async addAdvertisement(@Req() req: any) {
-    const { user, body } = req;
-    const { advertisement, images } = this.parseFormBody(body);
+  @UseInterceptors(AnyFilesInterceptor())
+  public async addAdvertisement(
+    @Req() { user }: Request,
+    @UploadedFiles() images,
+    @Body() body: any,
+  ) {
+    const advertisement = AdvertisementsController.parseAdvertisement(body);
+
+    if (!advertisement) {
+      throw new BadRequestException('missing advertisement');
+    }
 
     if (
       user.name !== advertisement.ownerName &&
@@ -94,10 +114,18 @@ export class AdvertisementsController {
 
   @Auth()
   @Patch('update')
-  @FormDataRequest()
-  public async updateAdvertisement(@Req() req: Request) {
-    const { user, body } = req;
-    const { advertisement, images } = this.parseFormBody(body);
+  @UseInterceptors(AnyFilesInterceptor())
+  public async updateAdvertisement(
+    @Req() { user }: Request,
+    @UploadedFiles() images,
+    @Body() body: any,
+  ) {
+    const advertisement = AdvertisementsController.parseAdvertisement(body);
+
+    if (!advertisement) {
+      throw new BadRequestException('missing advertisement');
+    }
+
     if (
       user.name !== advertisement.ownerName &&
       user.role !== Role.Administrator
@@ -133,16 +161,19 @@ export class AdvertisementsController {
     this.logger.info(`Delete advertisement with id = ${id}`);
   }
 
-  private getSkipAndTake(offset: string, count: string) {
+  private static getSkipAndTake(offset: string, count: string) {
     const skip = !isNaN(+offset) ? Number(offset) : undefined;
     const take = !isNaN(+offset) ? Number(count) : undefined;
 
     return { skip, take };
   }
 
-  // TODO: убрать ручной парсинг форм-даты
-  private parseFormBody(body: FormData) {
-    const { ad, Ad, ...imagesFiles } = body;
+  private static parseAdvertisement(body: FormData) {
+    const { ad, Ad } = body;
+    if (!ad && !Ad) {
+      return null;
+    }
+
     const source = JSON.parse(ad ?? Ad);
 
     const advertisement = new Advertisement();
@@ -152,8 +183,7 @@ export class AdvertisementsController {
 
       if (value) advertisement[field] = value;
     });
-    const images = Object.keys(imagesFiles).map((key) => imagesFiles[key]);
 
-    return { advertisement, images };
+    return advertisement;
   }
 }

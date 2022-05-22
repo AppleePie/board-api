@@ -19,7 +19,6 @@ export class AdvertisementsService {
   }
 
   public findById(uuid: string) {
-    this.advertisementRepository.clear();
     return this.advertisementRepository.findOne(uuid);
   }
 
@@ -35,9 +34,7 @@ export class AdvertisementsService {
     advertisement: Advertisement,
     imageFiles: MemoryStoredFile[],
   ): Promise<string> {
-    const images = (await this.imageService.uploadAll(imageFiles)).filter(
-      (image) => image != null,
-    );
+    const images = await this.imageService.uploadAll(imageFiles);
 
     advertisement.imagesLinks = images.map(({ path }) => 'img/get/' + path);
     advertisement.imageIds = images.map(({ id }) => id);
@@ -46,9 +43,9 @@ export class AdvertisementsService {
 
     const result = await this.advertisementRepository.insert(advertisement);
 
-    const [{ id }] = result.identifiers;
+    const [{ sid }] = result.identifiers;
 
-    return id;
+    return sid;
   }
 
   public async updateAdvertisement(
@@ -82,6 +79,10 @@ export class AdvertisementsService {
   }
 
   public async delete(id: string) {
+    const advertisement = await this.findById(id);
+
+    await this.imageService.deleteMany(advertisement.imageIds);
+
     const { affected } = await this.advertisementRepository.delete(id);
 
     return affected != null && affected > 0;
