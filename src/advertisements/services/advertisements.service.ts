@@ -19,6 +19,7 @@ export class AdvertisementsService {
   }
 
   public findById(uuid: string) {
+    this.advertisementRepository.clear();
     return this.advertisementRepository.findOne(uuid);
   }
 

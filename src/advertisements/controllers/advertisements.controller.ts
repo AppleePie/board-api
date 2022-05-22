@@ -142,9 +142,8 @@ export class AdvertisementsController {
 
   // TODO: убрать ручной парсинг форм-даты
   private parseFormBody(body: FormData) {
-    console.log(body);
-    const { ad, ...imagesFiles } = body;
-    const source = JSON.parse(ad);
+    const { ad, Ad, ...imagesFiles } = body;
+    const source = JSON.parse(ad ?? Ad);
 
     const advertisement = new Advertisement();
     Object.keys(source).forEach((key) => {
