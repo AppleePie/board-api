@@ -52,7 +52,7 @@ export class AccountsController {
 
     this.logger.info(`Created account with id = ${createdAccountId}`);
 
-    return this.login(registerAccountDto);
+    return await this.login(registerAccountDto);
   }
 
   @Post('login')

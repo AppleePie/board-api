@@ -17,6 +17,9 @@ export class Advertisement {
   @Column()
   public category: string;
 
+  @Column('int')
+  public price: number;
+
   @Column('int', { nullable: true, default: null })
   public rating: number;
 
